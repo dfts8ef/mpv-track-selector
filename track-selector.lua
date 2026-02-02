@@ -33,7 +33,9 @@ local options =
 
     audio_channel_order = "8,7,6,5,4,3,2,1",
 
-    subtitle_title_order = "mtbb,commie",  -- Placeholders. Probably only useful for sub groups or choosing original vs dub
+    -- Placeholders
+    audio_title_order = "original,dub",
+    subtitle_title_order = "mtbb,commie",  -- Probably only useful for sub groups
 
     -- If no profile is matched apply these track preferences
     audio_fallback = "eng",  -- String = alang/slang
@@ -487,15 +489,29 @@ local function match_precedence(precedence, ids, property)
                     end
                 end
             elseif precedence == "title" then
-                local track_title = subtitle_tracks[id]["codec"]
-                local subtitle_title_order = option_list(options.subtitle_title_order)
-                for i, title in ipairs(subtitle_title_order) do
-                    if title == track_title then
-                        if i < earliest_index then
-                            earliest_index = i
-                            preferred_id = id
+                if property == "audio" then
+                    local track_title = audio_tracks[id]["title"]:lower()
+                    local audio_title_order = option_list(options.audio_title_order:lower())
+                    for i, title in ipairs(audio_title_order) do
+                        if title == track_title then
+                            if i < earliest_index then
+                                earliest_index = i
+                                preferred_id = id
+                            end
+                            break
                         end
-                        break
+                    end
+                elseif property == "subtitle" then
+                    local track_title = subtitle_tracks[id]["title"]:lower()
+                    local subtitle_title_order = option_list(options.subtitle_title_order:lower())
+                    for i, title in ipairs(subtitle_title_order) do
+                        if title == track_title then
+                            if i < earliest_index then
+                                earliest_index = i
+                                preferred_id = id
+                            end
+                            break
+                        end
                     end
                 end
             end

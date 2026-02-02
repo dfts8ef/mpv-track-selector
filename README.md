@@ -53,5 +53,5 @@ Auto select tracks based on defined profiles.
   - For forced/hearing-impaired/visual-impaired check title as well, since not all tracks are tagged/flagged correctly
   - Audio/Subtitle precedence if multiple tracks match
   - Audio/Subtitle fallback if no profile matches
-  - Keybinding for toggling exceptions (e) and showing profile menu (p)
+  - Keybinding for toggling exceptions (`e`) and showing profile menu (`p`)
   - Whether to output extra information (for debugging)

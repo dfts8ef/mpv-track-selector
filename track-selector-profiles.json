@@ -1,0 +1,70 @@
+[
+    {
+        "description": "External Subtitle in Foreign Media",
+        "audio_languages": ["!eng", "!und", "!zxx"],
+        "audio_titles": ["!commentary?"],
+        "audio_visual_impaired": "no",
+        "subtitle_languages": ["eng", "und"],
+        "subtitle_external": "yes"
+    },
+    {
+        "description": "Anime Subtitled",
+        "audio_languages": ["jpn"],
+        "audio_titles": ["!commentary?"],
+        "audio_visual_impaired": "no",
+        "subtitle_languages": ["eng"],
+        "subtitle_titles": ["full?", "dialog?", "english", ""],
+        "subtitle_forced": "no"
+    },
+    {
+        "description": "Anime Dubbed",
+        "audio_languages": ["eng"],
+        "audio_titles": ["!commentary?"],
+        "audio_visual_impaired": "no",
+        "subtitle_languages": ["eng"],
+        "subtitle_titles": ["sign?", "song?"]
+    },
+    {
+        "description": "Foreign Dialog in English Media (Forced)",
+        "audio_languages": ["eng"],
+        "audio_titles": ["!commentary?"],
+        "audio_visual_impaired": "no",
+        "subtitle_languages": ["eng"],
+        "subtitle_forced": "yes"
+    },
+    {
+        "description": "Foreign Dialog in Foreign Media",
+        "audio_languages": ["!eng", "!und", "!zxx"],
+        "audio_titles": ["!commentary?", "!dub?"],
+        "audio_visual_impaired": "no",
+        "subtitle_languages": ["eng"],
+        "subtitle_forced": "no",
+        "subtitle_hearing_impaired": "no",
+    },
+    {
+        "description": "Foreign Dialog and Text in Foreign Media (Forced)",
+        "audio_languages": ["!eng", "!und", "!zxx"],
+        "audio_titles": ["!commentary?", "!dub?"],
+        "audio_visual_impaired": "no",
+        "subtitle_languages": ["eng"],
+        "subtitle_forced": "yes",
+        "subtitle_hearing_impaired": "no",
+    },
+    {
+        "description": "No Linguistic Content with Intertitles (Silent Era)",
+        "audio_languages": ["zxx"],
+        "subtitle_languages": ["eng"],
+        "subtitle_titles": ["title?"],
+        "subtitle_forced": "yes"
+    },
+    {
+        "description": "No Linguistic Content",
+        "audio_languages": ["zxx"]
+    },
+    {
+        "description": "English Media",
+        "audio_languages": ["eng"],
+        "audio_titles": ["!commentary?"],
+        "audio_visual_impaired": "no",
+    }
+]

@@ -33,7 +33,7 @@ local options =
 
     audio_channel_order = "8,7,6,5,4,3,2,1",
 
-    subtitle_title_order = "mtbb,commie",  -- Placeholders. Probably only useful for sub groups
+    subtitle_title_order = "mtbb,commie",  -- Placeholders. Probably only useful for sub groups or choosing original vs dub
 
     -- If no profile is matched apply these track preferences
     audio_fallback = "eng",  -- String = alang/slang

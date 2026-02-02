@@ -39,7 +39,7 @@
         "audio_visual_impaired": "no",
         "subtitle_languages": ["eng"],
         "subtitle_forced": "no",
-        "subtitle_hearing_impaired": "no",
+        "subtitle_hearing_impaired": "no"
     },
     {
         "description": "Foreign Dialog and Text in Foreign Media (Forced)",
@@ -48,7 +48,7 @@
         "audio_visual_impaired": "no",
         "subtitle_languages": ["eng"],
         "subtitle_forced": "yes",
-        "subtitle_hearing_impaired": "no",
+        "subtitle_hearing_impaired": "no"
     },
     {
         "description": "No Linguistic Content with Intertitles (Silent Era)",
@@ -65,6 +65,6 @@
         "description": "English Media",
         "audio_languages": ["eng"],
         "audio_titles": ["!commentary?"],
-        "audio_visual_impaired": "no",
+        "audio_visual_impaired": "no"
     }
 ]

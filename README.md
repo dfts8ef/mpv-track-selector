@@ -6,7 +6,7 @@ Auto select tracks based on defined profiles.
 
 `track-selector.conf`, `track-selector-profiles.json`, `language-code-mapping.json` into `~~/script-opts/`
 
-`track-selector-exceptions.json` will be created in `~~/script-opts/`
+`track-selector-exceptions.json` will be created in `~~/script-opts/`. Don't create it yourself.
 
 ## Features
 - Define profiles to match specific types of media, e.g. Anime Subbed, Anime Dubbed, Foreign, Non Linguistic, etc.

@@ -44,6 +44,9 @@ local options =
     keybind_exception = "e",  -- Except playing files path
     keybind_menu = "p",  -- Show menu of matched profiles
 
+    osd_messages = true,  -- OSD messages on profile changes and exceptions
+    osd_duration = 3,
+
     log = false  -- Additional output
 }
 
@@ -75,6 +78,13 @@ local excepted = false
 local function log(message)
     if options.log then
         print(message)
+    end
+end
+
+-- Display profile matches and exception info
+local function osd(message)
+    if options.osd_messages then
+        mp.osd_message(message, options.osd_duration)
     end
 end
 
@@ -741,6 +751,7 @@ mp.add_hook("on_preloaded", 50, function()
         mp.set_property(audio_selection, options.audio_fallback)
         mp.set_property(subtitle_selection, options.subtitle_fallback)
         print("No matching profile")
+        osd("No matching profile")
         log("Fallback Audio: " .. options.audio_fallback)
         log("Fallback Subtitles: " .. options.subtitle_fallback)
     elseif current_profile == nil then
@@ -759,6 +770,7 @@ mp.add_hook("on_preloaded", 50, function()
             mp.set_property("sid", all_profile_matches[1][2][2])
         end
         print("Applying profile:", current_profile)
+        osd("Applying profile: " .. current_profile)
 
     elseif current_profile ~= nil then
         -- Next/Previous file
@@ -797,6 +809,7 @@ mp.add_hook("on_preloaded", 50, function()
         end
 
         print("Applying profile:", current_profile)
+        osd("Applying profile: "  .. current_profile)
         mp.set_property("aid", audio_id)
         mp.set_property("sid", sub_id)
     end
@@ -831,6 +844,7 @@ mp.observe_property("aid", "number", function(_, value)
                 mp.set_property("sid", sid)
                 current_profile = prof
                 print("Switching profile:", current_profile)
+                osd("Switching profile: " .. current_profile)
                 track_change = true
                 break  -- Multiple matches? Apply first
             end
@@ -850,10 +864,12 @@ mp.add_forced_key_binding(options.keybind_exception, "toggle-exception", functio
                 -- If path & profile already excepted, remove
                 exceptions[directory] = nil
                 print("Removing exception:", current_profile, "->", directory)
+                osd("Removing exception")
             else
                 -- If path & profile not excepted or profile changed, add
                 exceptions[directory] = current_profile
                 print("Adding exception:", current_profile, "->", directory)
+                osd("Adding exception")
             end
 
             -- Update exceptions file
@@ -867,11 +883,13 @@ mp.add_forced_key_binding(options.keybind_exception, "toggle-exception", functio
             exception[directory] = current_profile
             print("Creating exception file:", mp.command_native({"expand-path", options.exceptions}))
             print("Adding exception:", current_profile, "->", directory)
+            osd("Adding exception")
             exception_file:write(utils.format_json(exception))
             exception_file:close()
         end
     else
         print("No profile to except")
+        osd("No profile to except")
     end
 
 end)
@@ -908,6 +926,7 @@ mp.add_forced_key_binding(options.keybind_menu, "profile-menu", function()
             mp.set_property("sid", sub_id)
             if current_profile ~= profile_menu[index] then
                 print("Switched profile:", profile_menu[index])
+                osd("Switched profile: " .. profile_menu[index])
                 track_change = true
             end
             current_profile = profile_menu[index]

@@ -71,6 +71,13 @@ local menu_track_change = true
 local exception_track_change = true
 local excepted = false
 
+-- Output extra info to console
+local function log(message)
+    if options.log then
+        print(message)
+    end
+end
+
 -- Read track profile and language map files, convert to table
 local function read_json(json_file)
     local path = mp.command_native({"expand-path", json_file})  -- Convert path to OS path
@@ -85,6 +92,7 @@ end
 -- Get audio and subtitle tracks
 local function get_track_list()
     local track_list = mp.get_property_native("track-list")
+    -- print(utils.to_string(track_list))
 
     for _, track in ipairs(track_list) do
         if track.type == "audio" then
@@ -284,9 +292,8 @@ local function match_preferences(preferences, tracks, property)
                             end
                         end
                     end
-                    if options.log then
-                        print(utils.to_string(debug_match_pref))
-                    end
+                    log(utils.to_string(debug_match_pref))
+
                 else  -- Multiple options (table)
                     local not_contain = {}
                     local does_contain = {}
@@ -356,10 +363,8 @@ local function match_preferences(preferences, tracks, property)
                             table.insert(matches, 0)
                         end
                     end
+                    log(utils.to_string(debug_match_pref))
 
-                    if options.log then
-                        print(utils.to_string(debug_match_pref))
-                    end
                 end
             end
         else
@@ -517,11 +522,8 @@ local function match_precedence(precedence, ids, property)
             end
         end
     end
-
-    if options.log then
-        print("Multiple", property, "matches:", utils.to_string(ids))
-        print("Using", precedence, "to select", property, "ID:", preferred_id)
-    end
+    log("Multiple " .. property .. " matches: " .. utils.to_string(ids))
+    log("Using " .. precedence .. " to select " .. property .. " ID: " .. preferred_id)
 
     return preferred_id
 end
@@ -530,9 +532,7 @@ end
 local function match_profiles(profiles)
 
     for _, profile in ipairs(profiles) do
-        if options.log then
-            print("\n" .. profile.description)
-        end
+        log("\n" .. profile.description)
 
         local audio_language_matches = match_preferences(profile.audio_languages, audio_tracks, "lang")
         local audio_title_matches = match_preferences(profile.audio_titles, audio_tracks, "title")
@@ -601,17 +601,13 @@ local function match_profiles(profiles)
         if next(profile_audio_matches) ~= nil then
             audio_track_id = common_matches(profile_audio_matches)
         else
-            if options.log then
-                print("No audio preferences")
-            end
+            log("No audio preferences")
             audio_track_id = 0
         end
         if next(profile_subtitle_matches) ~= nil then
             subtitle_track_id = common_matches(profile_subtitle_matches)
         else
-            if options.log then
-                print("No subtitle preferences")
-            end
+            log("No subtitle preferences")
             subtitle_track_id = 0
         end
 
@@ -629,13 +625,11 @@ local function match_profiles(profiles)
             table.insert(all_profile_matches, profile_matches)
         end
 
-        if options.log then
-            -- print(profile.description)
-            print("Audio   ", utils.to_string(profile_audio_matches))
-            print("Subtitle", utils.to_string(profile_subtitle_matches))
-            print("Matched audio ID:   ", utils.to_string(audio_track_id))
-            print("Matched subtitle ID:", utils.to_string(subtitle_track_id))
-        end
+        log("Audio: " .. utils.to_string(profile_audio_matches))
+        log("Subtitle: " .. utils.to_string(profile_subtitle_matches))
+        log("Matched audio ID: " .. utils.to_string(audio_track_id))
+        log("Matched subtitle ID: " .. utils.to_string(subtitle_track_id))
+
         -- Example output:
         -- Foreign Dialog in English Media (Forced)
         -- Audio {{1}, {1}}
@@ -733,10 +727,7 @@ mp.add_hook("on_preloaded", 50, function()
         subtitle_selection = "sid"
     end
 
-    if options.log then
-        print("\nResults:")
-        print(utils.to_string(all_profile_matches))
-    end
+    log("\nResults:\n" .. utils.to_string(all_profile_matches))
     -- {{"Profile Description 1", {aid, sid}}, {"Profile Description 2", {aid, sid}}}
     -- [1]       -> {{"Profile Description 1", {aid, sid}}}
     -- [2]       -> {{"Profile Description 2", {aid, sid}}}
@@ -750,9 +741,8 @@ mp.add_hook("on_preloaded", 50, function()
         mp.set_property(audio_selection, options.audio_fallback)
         mp.set_property(subtitle_selection, options.subtitle_fallback)
         print("No matching profile")
-        if options.log then
-            print("Fallback Audio:", options.audio_fallback .. ", Subtitles:", options.subtitle_fallback)
-        end
+        log("Fallback Audio: " .. options.audio_fallback)
+        log("Fallback Subtitles: " .. options.subtitle_fallback)
     elseif current_profile == nil then
         -- File opened
         current_profile = all_profile_matches[1][1]

@@ -235,7 +235,7 @@ local function match_preferences(preferences, tracks, property)
                 }
 
                 -- MPV track-list does not return 'commentary' flag, so not included
-                if property ~= "lang" and property == "external" or property == "forced" or property == "hearing-impaired" or property == "visual-impaired" then
+                if property ~= "lang" and property == "external" or property == "default" or property == "forced" or property == "hearing-impaired" or property == "visual-impaired" then
                     -- Yes/No options
                     if track[property] == true and preferences == "yes" then
                         table.insert(matches, track.id)
@@ -253,7 +253,7 @@ local function match_preferences(preferences, tracks, property)
 
                     -- Check title for keywords since track flags are not always set
                     -- Have not found a need to differentiate audio & subtitle yet
-                    if track.title then
+                    if track.title ~= "" then
                         if property == "forced" and options.forced_check then
                             if track.title:lower():find("forced") then
                                 debug_match_pref.track["title"] = true
@@ -546,6 +546,8 @@ local function match_profiles(profiles)
 
         local audio_language_matches = match_preferences(profile.audio_languages, audio_tracks, "lang")
         local audio_title_matches = match_preferences(profile.audio_titles, audio_tracks, "title")
+        local audio_default_matches = match_preferences(profile.audio_default, audio_tracks, "default")
+        local audio_forced_matches = match_preferences(profile.audio_forced, audio_tracks, "forced")
         local audio_hearing_impaired_matches = match_preferences(profile.audio_hearing_impaired, audio_tracks, "hearing-impaired")
         local audio_visual_impaired_matches = match_preferences(profile.audio_visual_impaired, audio_tracks, "visual-impaired")
         local audio_external_matches = match_preferences(profile.audio_external, audio_tracks, "external")
@@ -553,6 +555,7 @@ local function match_profiles(profiles)
 
         local subtitle_language_matches = match_preferences(profile.subtitle_languages, subtitle_tracks, "lang")
         local subtitle_title_matches = match_preferences(profile.subtitle_titles, subtitle_tracks, "title")
+        local subtitle_default_matches = match_preferences(profile.subtitle_default, subtitle_tracks, "default")
         local subtitle_forced_matches = match_preferences(profile.subtitle_forced, subtitle_tracks, "forced")
         local subtitle_hearing_impaired_matches = match_preferences(profile.subtitle_hearing_impaired, subtitle_tracks, "hearing-impaired")
         local subtitle_visual_impaired_matches = match_preferences(profile.subtitle_visual_impaired, subtitle_tracks, "visual-impaired")
@@ -566,6 +569,12 @@ local function match_profiles(profiles)
         end
         if next(audio_title_matches) ~= nil then
             table.insert(profile_audio_matches, audio_title_matches)
+        end
+        if next(audio_default_matches) ~= nil then
+            table.insert(profile_audio_matches, audio_default_matches)
+        end
+        if next(audio_forced_matches) ~= nil then
+            table.insert(profile_audio_matches, audio_forced_matches)
         end
         if next(audio_hearing_impaired_matches) ~= nil then
             table.insert(profile_audio_matches, audio_hearing_impaired_matches)
@@ -587,6 +596,9 @@ local function match_profiles(profiles)
         end
         if next(subtitle_title_matches) ~= nil then
             table.insert(profile_subtitle_matches, subtitle_title_matches)
+        end
+        if next(subtitle_default_matches) ~= nil then
+            table.insert(profile_subtitle_matches, subtitle_default_matches)
         end
         if next(subtitle_forced_matches) ~= nil then
             table.insert(profile_subtitle_matches, subtitle_forced_matches)

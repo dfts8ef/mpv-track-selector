@@ -26,14 +26,17 @@ Auto select tracks based on defined profiles.
 | description | string | No |
 | audio_languages| array | Yes |
 | audio_titles | array | Yes |
+| audio_default | boolean | Yes |
+| audio_forced | boolean | Yes |
 | audio_hearing_impaired | boolean | Yes |
 | audio_visual_impaired | boolean | Yes |
 | audio_external | boolean | Yes |
 | subtitle_languages | array | Yes |
 | subtitle_titles | array | Yes |
+| subtitle_default | boolean | Yes |
+| subtitle_forced | boolean | Yes |
 | subtitle_hearing_impaired | boolean | Yes |
 | subtitle_visual_impaired | boolean | Yes |
-| subtitle_forced | boolean | Yes |
 | subtitle_external | boolean | Yes |
 
 - Order of profiles matter. If there is an overlap the first profile match is selected.
@@ -54,4 +57,5 @@ Auto select tracks based on defined profiles.
   - Audio/Subtitle precedence if multiple tracks match
   - Audio/Subtitle fallback if no profile matches
   - Keybinding for toggling exceptions (`e`) and showing profile menu (`p`)
+  - OSD message settings
   - Whether to output extra information (for debugging)

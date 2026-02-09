@@ -31,6 +31,7 @@ Auto select tracks based on defined profiles.
 | audio_hearing_impaired | boolean | Yes |
 | audio_visual_impaired | boolean | Yes |
 | audio_external | boolean | Yes |
+| audio_formats | array | Yes |
 | subtitle_languages | array | Yes |
 | subtitle_titles | array | Yes |
 | subtitle_default | boolean | Yes |
@@ -38,6 +39,7 @@ Auto select tracks based on defined profiles.
 | subtitle_hearing_impaired | boolean | Yes |
 | subtitle_visual_impaired | boolean | Yes |
 | subtitle_external | boolean | Yes |
+| subtitle_formats | array | Yes |
 
 - Order of profiles matter. If there is an overlap the first profile match is selected.
 - No `audio_` option means no audio track selected

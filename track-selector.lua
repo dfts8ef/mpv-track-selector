@@ -551,7 +551,7 @@ local function match_profiles(profiles)
         local audio_hearing_impaired_matches = match_preferences(profile.audio_hearing_impaired, audio_tracks, "hearing-impaired")
         local audio_visual_impaired_matches = match_preferences(profile.audio_visual_impaired, audio_tracks, "visual-impaired")
         local audio_external_matches = match_preferences(profile.audio_external, audio_tracks, "external")
-        local audio_format_matches = match_preferences(profile.audio_format, audio_tracks, "codec")
+        local audio_format_matches = match_preferences(profile.audio_formats, audio_tracks, "codec")
 
         local subtitle_language_matches = match_preferences(profile.subtitle_languages, subtitle_tracks, "lang")
         local subtitle_title_matches = match_preferences(profile.subtitle_titles, subtitle_tracks, "title")
@@ -560,7 +560,7 @@ local function match_profiles(profiles)
         local subtitle_hearing_impaired_matches = match_preferences(profile.subtitle_hearing_impaired, subtitle_tracks, "hearing-impaired")
         local subtitle_visual_impaired_matches = match_preferences(profile.subtitle_visual_impaired, subtitle_tracks, "visual-impaired")
         local subtitle_external_matches = match_preferences(profile.subtitle_external, subtitle_tracks, "external")
-        local subtitle_format_matches = match_preferences(profile.subtitle_format, subtitle_tracks, "codec")
+        local subtitle_format_matches = match_preferences(profile.subtitle_formats, subtitle_tracks, "codec")
 
         -- Combine audio matches
         local profile_audio_matches     = {}

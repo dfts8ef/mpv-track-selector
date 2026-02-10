@@ -40,6 +40,7 @@ local options =
     -- If no profile is matched apply these track preferences
     audio_fallback = "eng",  -- String = alang/slang
     subtitle_fallback = 0,  -- Number = aid/sid (Use 0, not "no" to disable)
+    secondary_subtitle_fallback = 0,
 
     keybind_exception = "e",  -- Except playing files path
     keybind_menu = "p",  -- Show menu of matched profiles
@@ -253,7 +254,7 @@ local function match_preferences(preferences, tracks, property)
 
                     -- Check title for keywords since track flags are not always set
                     -- Have not found a need to differentiate audio & subtitle yet
-                    if track.title ~= "" then
+                    if track.title and track.title ~= "" then
                         if property == "forced" and options.forced_check then
                             if track.title:lower():find("forced") then
                                 debug_match_pref.track["title"] = true
@@ -562,6 +563,15 @@ local function match_profiles(profiles)
         local subtitle_external_matches = match_preferences(profile.subtitle_external, subtitle_tracks, "external")
         local subtitle_format_matches = match_preferences(profile.subtitle_formats, subtitle_tracks, "codec")
 
+        local subtitle_2_language_matches = match_preferences(profile.subtitle_2_languages, subtitle_tracks, "lang")
+        local subtitle_2_title_matches = match_preferences(profile.subtitle_2_titles, subtitle_tracks, "title")
+        local subtitle_2_default_matches = match_preferences(profile.subtitle_2_default, subtitle_tracks, "default")
+        local subtitle_2_forced_matches = match_preferences(profile.subtitle_2_forced, subtitle_tracks, "forced")
+        local subtitle_2_hearing_impaired_matches = match_preferences(profile.subtitle_2_hearing_impaired, subtitle_tracks, "hearing-impaired")
+        local subtitle_2_visual_impaired_matches = match_preferences(profile.subtitle_2_visual_impaired, subtitle_tracks, "visual-impaired")
+        local subtitle_2_external_matches = match_preferences(profile.subtitle_2_external, subtitle_tracks, "external")
+        local subtitle_2_format_matches = match_preferences(profile.subtitle_2_formats, subtitle_tracks, "codec")
+
         -- Combine audio matches
         local profile_audio_matches     = {}
         if next(audio_language_matches) ~= nil then  -- Check table is not empty
@@ -616,8 +626,36 @@ local function match_profiles(profiles)
             table.insert(profile_subtitle_matches, subtitle_format_matches)
         end
 
+        -- Combine secondary subtitle matches
+        local profile_subtitle_2_matches = {}
+        if next(subtitle_2_language_matches) ~= nil then
+            table.insert(profile_subtitle_2_matches, subtitle_2_language_matches)
+        end
+        if next(subtitle_2_title_matches) ~= nil then
+            table.insert(profile_subtitle_2_matches, subtitle_2_title_matches)
+        end
+        if next(subtitle_2_default_matches) ~= nil then
+            table.insert(profile_subtitle_2_matches, subtitle_2_default_matches)
+        end
+        if next(subtitle_2_forced_matches) ~= nil then
+            table.insert(profile_subtitle_2_matches, subtitle_2_forced_matches)
+        end
+        if next(subtitle_2_hearing_impaired_matches) ~= nil then
+            table.insert(profile_subtitle_2_matches, subtitle_2_hearing_impaired_matches)
+        end
+        if next(subtitle_2_visual_impaired_matches) ~= nil then
+            table.insert(profile_subtitle_2_matches, subtitle_2_visual_impaired_matches)
+        end
+        if next(subtitle_2_external_matches) ~= nil then
+            table.insert(profile_subtitle_2_matches, subtitle_2_external_matches)
+        end
+        if next(subtitle_2_format_matches) ~= nil then
+            table.insert(profile_subtitle_2_matches, subtitle_2_format_matches)
+        end
+
         local audio_track_id
         local subtitle_track_id
+        local subtitle_2_track_id
 
         -- Find common track ID's matching profile preferences
         if next(profile_audio_matches) ~= nil then
@@ -632,6 +670,12 @@ local function match_profiles(profiles)
             log("No subtitle preferences")
             subtitle_track_id = 0
         end
+        if next(profile_subtitle_2_matches) ~= nil then
+            subtitle_2_track_id = common_matches(profile_subtitle_2_matches)
+        else
+            log("No secondary subtitle preferences")
+            subtitle_2_track_id = 0
+        end
 
         -- If multiple matches
         if type(audio_track_id) == "table" and #audio_track_id ~= 0 then
@@ -640,17 +684,22 @@ local function match_profiles(profiles)
         if type(subtitle_track_id) == "table" and #subtitle_track_id ~= 0 then
             subtitle_track_id = match_precedence(options.subtitle_precedence, subtitle_track_id, "subtitle")
         end
+        if type(subtitle_2_track_id) == "table" and #subtitle_2_track_id ~= 0 then
+            subtitle_2_track_id = match_precedence(options.subtitle_precedence, subtitle_2_track_id, "subtitle")
+        end
 
         -- Must match both audio and subtitle preferences
-        if audio_track_id ~= nil and subtitle_track_id ~= nil then
-            local profile_matches = {profile.description, {audio_track_id, subtitle_track_id}}
+        if audio_track_id ~= nil and subtitle_track_id ~= nil and subtitle_2_track_id ~= nil then
+            profile_matches = {profile.description, {audio_track_id, subtitle_track_id, subtitle_2_track_id}}
             table.insert(all_profile_matches, profile_matches)
         end
 
         log("Audio: " .. utils.to_string(profile_audio_matches))
         log("Subtitle: " .. utils.to_string(profile_subtitle_matches))
+        log("Secondary Subtitle: " .. utils.to_string(profile_subtitle_2_matches))
         log("Matched audio ID: " .. utils.to_string(audio_track_id))
         log("Matched subtitle ID: " .. utils.to_string(subtitle_track_id))
+        log("Matched secondary subtitle ID: " .. utils.to_string(subtitle_2_track_id))
 
         -- Example output:
         -- Foreign Dialog in English Media (Forced)
@@ -704,7 +753,7 @@ end
 local function other_profiles_matched(all_matches, profile)
     for _, match in ipairs(all_matches) do
         if match[1] == profile then
-            return match[2][1], match[2][2]  -- audio, sub
+            return match[2][1], match[2][2], match[2][3]  -- audio, sub, sub2
         end
     end
     return nil
@@ -749,44 +798,56 @@ mp.add_hook("on_preloaded", 50, function()
         subtitle_selection = "sid"
     end
 
+    local subtitle_2_selection
+    if type(options.secondary_subtitle_fallback) == "string" then
+        subtitle_2_selection = "slang"
+    elseif type(options.secondary_subtitle_fallback) == "number" then
+        subtitle_2_selection = "sid"
+    end
+
     log("\nResults:\n" .. utils.to_string(all_profile_matches))
-    -- {{"Profile Description 1", {aid, sid}}, {"Profile Description 2", {aid, sid}}}
-    -- [1]       -> {{"Profile Description 1", {aid, sid}}}
-    -- [2]       -> {{"Profile Description 2", {aid, sid}}}
+    -- {{"Profile Description 1", {aid, sid, sid2}}, {"Profile Description 2", {aid, sid, sid2}}}
+    -- [1]       -> {{"Profile Description 1", {aid, sid, sid2}}}
+    -- [2]       -> {{"Profile Description 2", {aid, sid, sid2}}}
     -- [1][1]    -> Profile Description 1
     -- [1][2][1] -> aid
     -- [1][2][2] -> sid
+    -- [1][2][3] -> secondary-sid
 
     -- Apply profile
     if #all_profile_matches == 0 then
         current_profile = nil
         mp.set_property(audio_selection, options.audio_fallback)
         mp.set_property(subtitle_selection, options.subtitle_fallback)
+        mp.set_property(subtitle_2_selection, options.secondary_subtitle_fallback)
         print("No matching profile")
         osd("No matching profile")
         log("Fallback Audio: " .. options.audio_fallback)
         log("Fallback Subtitles: " .. options.subtitle_fallback)
+        log("Fallback Secondary Subtitles: " .. options.secondary_subtitle_fallback)
     elseif current_profile == nil then
         -- File opened
         current_profile = all_profile_matches[1][1]
         if exceptions[directory] and exceptions[directory] ~= current_profile then
             -- Current path in exceptions file
             excepted = true
-            local audio_id, sub_id = other_profiles_matched(all_profile_matches, exceptions[directory])
+            local audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, exceptions[directory])
             mp.set_property("aid", audio_id)
             mp.set_property("sid", sub_id)
+            mp.set_property("secondary-sid", sub_2_id)
             current_profile = exceptions[directory]
             print("Exception: Selecting", current_profile .. ", not", all_profile_matches[1][1])
         else
             mp.set_property("aid", all_profile_matches[1][2][1])
             mp.set_property("sid", all_profile_matches[1][2][2])
+            mp.set_property("secondary-sid", all_profile_matches[1][2][3])
         end
         print("Applying profile:", current_profile)
         osd("Applying profile: " .. current_profile)
 
     elseif current_profile ~= nil then
         -- Next/Previous file
-        local audio_id, sub_id
+        local audio_id, sub_id, sub_2_id
 
         -- Scenario: 
         -- E01 matches profile A & B, E02 only matches profile B. E03 matches profile A and B
@@ -796,14 +857,14 @@ mp.add_hook("on_preloaded", 50, function()
         if current_profile ~= all_profile_matches[1][1] then
             if track_change then
                 -- Manual track change, maintain profile match
-                audio_id, sub_id = other_profiles_matched(all_profile_matches, current_profile)
+                audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, current_profile)
             else
                 if excepted then
                     -- Excepted path
-                    audio_id, sub_id = other_profiles_matched(all_profile_matches, current_profile)
+                    audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, current_profile)
                 else
                 -- Return to first profile matched after next/prev did not
-                    audio_id, sub_id = other_profiles_matched(all_profile_matches, all_profile_matches[1][1])
+                    audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, all_profile_matches[1][1])
                     current_profile = all_profile_matches[1][1]
                     exception_track_change = false
                 end
@@ -811,12 +872,12 @@ mp.add_hook("on_preloaded", 50, function()
         else
             -- Maintain profile - see comment scenario above
             -- Catch track having different ID
-            audio_id, sub_id = other_profiles_matched(all_profile_matches, current_profile)
+            audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, current_profile)
         end
 
         -- Next/Prev not matching same profile, use matches from playing file
-        if audio_id == nil and sub_id == nil then
-            audio_id, sub_id = other_profiles_matched(all_profile_matches, all_profile_matches[1][1])
+        if audio_id == nil and sub_id == nil and sub_2_id then
+            audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, all_profile_matches[1][1])
             current_profile = all_profile_matches[1][1]
         end
 
@@ -824,6 +885,7 @@ mp.add_hook("on_preloaded", 50, function()
         osd("Applying profile: "  .. current_profile)
         mp.set_property("aid", audio_id)
         mp.set_property("sid", sub_id)
+        mp.set_property("secondary-sid", sub_2_id)
     end
 
 end)
@@ -850,10 +912,12 @@ mp.observe_property("aid", "number", function(_, value)
             local prof = match[1]
             local aid = match[2][1]
             local sid = match[2][2]
+            local sid_2 = match[2][3]
 
             if value == aid then
                 -- Current aid matches the aid of another matched profile, update sid too
                 mp.set_property("sid", sid)
+                mp.set_property("secondary-sid", sid_2)
                 current_profile = prof
                 print("Switching profile:", current_profile)
                 osd("Switching profile: " .. current_profile)
@@ -933,9 +997,10 @@ mp.add_forced_key_binding(options.keybind_menu, "profile-menu", function()
         default_item = default_item,
         submit = function (index)
             -- Get aid, sid from selected entry matching profile description
-            audio_id, sub_id = other_profiles_matched(all_profile_matches, profile_menu[index])
+            audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, profile_menu[index])
             mp.set_property("aid", audio_id)
             mp.set_property("sid", sub_id)
+            mp.set_property("secondary-sid", sub_2_id)
             if current_profile ~= profile_menu[index] then
                 print("Switched profile:", profile_menu[index])
                 osd("Switched profile: " .. profile_menu[index])

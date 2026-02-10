@@ -13,6 +13,7 @@ Auto select tracks based on defined profiles.
 - Granular control over matching audio/subtitle tracks by their tags and flags
 - Language code conversion
 - Ability to filter multiple matches via: id, default, title, codec, channels, bitrate
+- Secondary subtitle support
 - Automatic selection
 - Maintain profile on next/prev
 - Ability to change profile via a menu or switching audio track. Then maintain this profile on next/prev
@@ -40,10 +41,19 @@ Auto select tracks based on defined profiles.
 | subtitle_visual_impaired | boolean | Yes |
 | subtitle_external | boolean | Yes |
 | subtitle_formats | array | Yes |
+| subtitle_2_languages | array | Yes |
+| subtitle_2_titles | array | Yes |
+| subtitle_2_default | boolean | Yes |
+| subtitle_2_forced | boolean | Yes |
+| subtitle_2_hearing_impaired | boolean | Yes |
+| subtitle_2_visual_impaired | boolean | Yes |
+| subtitle_2_external | boolean | Yes |
+| subtitle_2_formats | array | Yes |
 
 - Order of profiles matter. If there is an overlap the first profile match is selected.
 - No `audio_` option means no audio track selected
 - No `subtitle_` option means no subtitle track selected
+- No `subtitle_2_` option means no secondary subtitle track selected
 - All matching is done ignoring case
 - Arrays are string arrays. Matching ignores case. Strings can contain wildcards ( ! or ? )
 - No wildcard in string means **exact match**

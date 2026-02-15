@@ -12,7 +12,7 @@ local options =
 
     exceptions = "~~/script-opts/track-selector-exceptions.json",
 
-    -- Check title for "forced", "sdh", "descrip" respectively since not all tracks are flagged
+    -- Check title for "forced", "sdh", "[cc]", "descrip" respectively since not all tracks are flagged
     forced_check = true,
     hearing_impaired_check = true,
     visual_impaired_check = true,
@@ -252,12 +252,16 @@ local function match_preferences(preferences, tracks, property)
                         debug_match_pref.match = false
                     end
 
+--[[
+    Came across an issue where a sub track had the hearing-impaired flag set to true but MPV reported it as false. Remuxing the file without changing anything resulted in MPV now correctly reporting hearing-impaired as true. Check for this issue before altering code.
+]]
+
                     -- Check title for keywords since track flags are not always set
                     -- Have not found a need to differentiate audio & subtitle yet
                     if track.title and track.title ~= "" then
+                        debug_match_pref.track["title"] = track.title
                         if property == "forced" and options.forced_check then
                             if track.title:lower():find("forced") then
-                                debug_match_pref.track["title"] = true
                                 if preferences == "yes" then
                                     table.insert(matches, track.id)
                                     debug_match_pref.match = true
@@ -266,13 +270,16 @@ local function match_preferences(preferences, tracks, property)
                                     debug_match_pref.match = false
                                 end
                             else
-                                table.insert(matches, 0)
-                                debug_match_pref.track["title"] = false
-                                debug_match_pref.match = false
+                                if preferences == "yes" then
+                                    table.insert(matches, 0)
+                                    debug_match_pref.match = false
+                                elseif preferences == "no" then
+                                    table.insert(matches, track.id)
+                                    debug_match_pref.match = true
+                                end
                             end
                         elseif property == "hearing-impaired" and options.hearing_impaired_check then
-                            if track.title:lower():find("sdh") then
-                                debug_match_pref.track["title"] = true
+                            if track.title:lower():find("sdh") or track.title:lower():find("%[cc%]") then
                                 if preferences == "yes" then
                                     table.insert(matches, track.id)
                                     debug_match_pref.match = true
@@ -281,14 +288,17 @@ local function match_preferences(preferences, tracks, property)
                                     debug_match_pref.match = false
                                 end
                             else
-                                table.insert(matches, 0)
-                                debug_match_pref.track["title"] = false
-                                debug_match_pref.match = false
+                                if preferences == "yes" then
+                                    table.insert(matches, 0)
+                                    debug_match_pref.match = false
+                                elseif preferences == "no" then
+                                    table.insert(matches, track.id)
+                                    debug_match_pref.match = true
+                                end
                             end
                         elseif property == "visual-impaired" and options.visual_impaired_check then
                             if track.title:lower():find("descrip") then
                                 -- Covers 'descripton' & 'descriptive'
-                                debug_match_pref.track["title"] = true
                                 if preferences == "yes" then
                                     table.insert(matches, track.id)
                                     debug_match_pref.match = true
@@ -297,11 +307,17 @@ local function match_preferences(preferences, tracks, property)
                                     debug_match_pref.match = false
                                 end
                             else
-                                table.insert(matches, 0)
-                                debug_match_pref.track["title"] = false
-                                debug_match_pref.match = false
+                                if preferences == "yes" then
+                                    table.insert(matches, 0)
+                                    debug_match_pref.match = false
+                                elseif preferences == "no" then
+                                    table.insert(matches, track.id)
+                                    debug_match_pref.match = true
+                                end
                             end
                         end
+                    else
+                        debug_match_pref.track["title"] = nil
                     end
                     log(utils.to_string(debug_match_pref))
 

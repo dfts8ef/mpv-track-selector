@@ -37,11 +37,6 @@ local options =
     audio_title_order = "original,dub",
     subtitle_title_order = "mtbb,commie",  -- Probably only useful for sub groups
 
-    -- If no profile is matched apply these track preferences
-    audio_fallback = "eng",  -- String = alang/slang
-    subtitle_fallback = 0,  -- Number = aid/sid (Use 0, not "no" to disable)
-    secondary_subtitle_fallback = 0,
-
     keybind_exception = "e",  -- Except playing files path
     keybind_menu = "p",  -- Show menu of matched profiles
 
@@ -800,27 +795,6 @@ mp.add_hook("on_preloaded", 50, function()
     get_track_list()
     match_profiles(profiles)
 
-    local audio_selection
-    if type(options.audio_fallback) == "string" then
-        audio_selection = "alang"
-    elseif type(options.audio_fallback) == "number" then
-        audio_selection = "aid"
-    end
-
-    local subtitle_selection
-    if type(options.subtitle_fallback) == "string" then
-        subtitle_selection = "slang"
-    elseif type(options.subtitle_fallback) == "number" then
-        subtitle_selection = "sid"
-    end
-
-    local subtitle_2_selection
-    if type(options.secondary_subtitle_fallback) == "string" then
-        subtitle_2_selection = "slang"
-    elseif type(options.secondary_subtitle_fallback) == "number" then
-        subtitle_2_selection = "sid"
-    end
-
     log("\nResults:\n" .. utils.to_string(all_profile_matches))
     -- {{"Profile Description 1", {aid, sid, sid2}}, {"Profile Description 2", {aid, sid, sid2}}}
     -- [1]       -> {{"Profile Description 1", {aid, sid, sid2}}}
@@ -833,14 +807,8 @@ mp.add_hook("on_preloaded", 50, function()
     -- Apply profile
     if #all_profile_matches == 0 then
         current_profile = nil
-        mp.set_property(audio_selection, options.audio_fallback)
-        mp.set_property(subtitle_selection, options.subtitle_fallback)
-        mp.set_property(subtitle_2_selection, options.secondary_subtitle_fallback)
-        print("No matching profile")
-        osd("No matching profile")
-        log("Fallback Audio: " .. options.audio_fallback)
-        log("Fallback Subtitles: " .. options.subtitle_fallback)
-        log("Fallback Secondary Subtitles: " .. options.secondary_subtitle_fallback)
+        print("No matching profile. Using mpv.conf")
+        osd("No matching profile. Using mpv.conf")
     elseif current_profile == nil then
         -- File opened
         current_profile = all_profile_matches[1][1]

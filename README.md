@@ -50,7 +50,8 @@ Auto select tracks based on defined profiles.
 | subtitle_2_external | boolean | Yes |
 | subtitle_2_formats | array | Yes |
 
-- Order of profiles matter. If there is an overlap the first profile match is selected.
+- Order of profiles matter. If there is an overlap the first profile match is selected
+- If no profile matches, track selection in `mpv.conf` is used
 - No `audio_` option means no audio track selected
 - No `subtitle_` option means no subtitle track selected
 - No `subtitle_2_` option means no secondary subtitle track selected
@@ -60,14 +61,13 @@ Auto select tracks based on defined profiles.
 - `!` at the start of string means **not exact match**
 - `?` at the end of string means **contains**
 - `!` at the start and `?` at the end means **not contains**
-- Script handles ISO 639-1, ISO 639-2, BCP-47 language code conversion, however not all BCP-47 subtags are in [language-code-mapping.json](https://github.com/dfts8ef/mpv-track-selector/blob/main/language-code-mapping.json) because that would require too many entries. Example: `fil` not in map so use `fil-PH` instead.
+- Script handles ISO 639-1, ISO 639-2, BCP-47 language code conversion, however not all BCP-47 subtags are in [language-code-mapping.json](https://github.com/dfts8ef/mpv-track-selector/blob/main/language-code-mapping.json) because that would require too many entries. Example: `fil` not in map so use `fil-PH` instead
 
 ### Configuration File
 - Adjust options here, not the script. Options include:
   - Location of profiles, language map, exceptions
   - For forced/hearing-impaired/visual-impaired check title as well, since not all tracks are tagged/flagged correctly
   - Audio/Subtitle precedence if multiple tracks match
-  - Audio/Subtitle fallback if no profile matches
   - Keybinding for toggling exceptions (`e`) and showing profile menu (`p`)
   - OSD message settings
   - Whether to output extra information (for debugging)

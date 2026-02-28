@@ -103,8 +103,10 @@ local function get_track_list()
     for _, track in ipairs(track_list) do
         if track.type == "audio" then
             table.insert(audio_tracks, track)
+            log(utils.to_string(track))
         elseif track.type == "sub" then
             table.insert(subtitle_tracks, track)
+            log(utils.to_string(track))
         end
     end
 end

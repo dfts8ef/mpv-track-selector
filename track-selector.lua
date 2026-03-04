@@ -250,7 +250,10 @@ local function match_preferences(preferences, tracks, property)
                     end
 
 --[[
-    Came across an issue where a sub track had the hearing-impaired flag set to true but MPV reported it as false. Remuxing the file without changing anything resulted in MPV now correctly reporting hearing-impaired as true. Check for this issue before altering code.
+    If MPV reports a track flag differently to mkvtoolnix-gui it could be related to:
+    https://codeberg.org/mbunkus/mkvtoolnix/commit/bfabf7099879a3d3d535cf227a949780c0837b6c
+    By default mkvtoolnix-gui sets flag from title, so if title includes SDH the hearing-impaired flag is enabled
+    Disable this in preferences or use mkvinfo to get the files current settings
 ]]
 
                     -- Check title for keywords since track flags are not always set

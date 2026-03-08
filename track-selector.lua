@@ -821,11 +821,17 @@ mp.add_hook("on_preloaded", 50, function()
             -- Current path in exceptions file
             excepted = true
             local audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, exceptions[directory])
+            if not (audio_id or sub_id or sub_2_id) then
+                -- Excepted profile not in track-selector-profiles
+                print("Missing profile:", exceptions[directory], "referenced in exceptions")
+                audio_id, sub_id, sub_2_id = other_profiles_matched(all_profile_matches, current_profile)
+            else
+                current_profile = exceptions[directory]
+                print("Exception: Selecting", current_profile .. ", not", all_profile_matches[1][1])
+            end
             mp.set_property("aid", audio_id)
             mp.set_property("sid", sub_id)
             mp.set_property("secondary-sid", sub_2_id)
-            current_profile = exceptions[directory]
-            print("Exception: Selecting", current_profile .. ", not", all_profile_matches[1][1])
         else
             mp.set_property("aid", all_profile_matches[1][2][1])
             mp.set_property("sid", all_profile_matches[1][2][2])

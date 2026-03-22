@@ -21,7 +21,9 @@ Auto select tracks based on defined profiles.
 
 ## Configuration
 ### Profile
-[Examples](https://github.com/dfts8ef/mpv-track-selector/blob/main/track-selector-profiles.json)
+[Example Profiles](https://github.com/dfts8ef/mpv-track-selector/blob/main/track-selector-profiles.json)
+
+[Wiki Examples](https://github.com/dfts8ef/mpv-track-selector/wiki/Example-Profiles)
 | Option | Preference | Optional? | Basic Example |
 |---|---|---|---|
 | description | string | No | `"description": "Example Profile"` |

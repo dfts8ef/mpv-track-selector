@@ -1,5 +1,5 @@
 # mpv-track-selector
-Auto select tracks based on defined profiles.
+Auto select audio, subtitle, secondary-subtitle tracks based on defined profiles.
 
 ## Setup
 `track-selector.lua` into `~~/scripts/`

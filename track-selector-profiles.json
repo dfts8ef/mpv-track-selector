@@ -13,7 +13,7 @@
         "audio_title": ["!commentary?"],
         "audio_visual-impaired": "no",
         "subtitle_lang": ["eng"],
-        "subtitle_title": ["full?", "dialog?", "english", ""],
+        "subtitle_title": ["english?", "full?", "dialog?", "!sign?", ""],
         "subtitle_forced": "no",
         "subtitle_hearing-impaired": "no"
     },

@@ -13,18 +13,23 @@ local options =
     hearing_impaired_title_check = true,
     visual_impaired_title_check = true,
 
-    -- codec, bitrate (highest), id (lowest), default (flag), title, channels (audio)
-    audio_precedence = "codec,channels,title,default,bitrate,id",
+    -- Commentary and Original flags not properties of track-list yet
+    -- commentary_title_check=true
+
+    -- codec, bitrate (highest), id (lowest), default (flag), title, lang, channels (audio)
+    audio_precedence = "codec,channels,title,default,bitrate,id,lang",
     subtitle_precedence = "codec,title,default,id",
 
     -- Audio codec ordered by uncompressed to lossless to lossy compressed
     audio_codec_order = "pcm,dts-hd,truehd,flac,dts,opus,eac3,ac3,aac,vorbis,mp3,mp2",
     audio_channels_order = "8,7,6,5,4,3,2,1",
     audio_title_order = "original,dub",
+    audio_lang_order = "en",
 
     -- Subtitle codec ordered by the ability to restyle
-    subtitle_codec_order = "ass,subrip,mov_text,webvtt,hdmv_pgs_subtitle,dvd_subtitle",
-    subtitle_title_order = "mtbb,commie",  -- Probably only useful for sub groups
+    subtitle_codec_order = "ass,subrip,mov_text,webvtt,hdmv_pgs_subtitle,dvd_subtitle,dvb_subtitle",
+    subtitle_title_order = "mtbb,commie",  -- Probably only useful for sub groups or honorifics
+    subtitle_lang_order = "en",
 
     keybind_toggle_exception = "e",
     keybind_show_profile_menu = "p",
@@ -109,7 +114,7 @@ local function get_track_list()
             log(utils.to_string(track))
         elseif track.type == "sub" then
             table.insert(subtitle_tracks, track)
-            log(utils.to_string(track))
+            -- log(utils.to_string(track))
         end
     end
 end
@@ -204,8 +209,9 @@ local function match_flag_title(track, preference, property)
         found = title:find("sdh") or title:find("%[cc%]") or title:find("%(cc%)")
     elseif property == "visual-impaired" then
         found = title:find("descrip")
+--     elseif property == "commentary" then
+--         found = title:find("comment")
     end
-    -- MPV does not support commentary flag yet
 
     if found then
         if preference == "yes" then
@@ -378,6 +384,7 @@ local function find_earliest_precedence(track_type, precedence, track_value, id)
     local precedence_order = convert_option_to_table(options[track_type .. "_" .. precedence .. "_order"])
 
     for i, order_value in ipairs(precedence_order) do
+        order_value = order_value:lower()
         if precedence == "title" then
             if track_value:find(order_value) then
                 precedence_index = i
@@ -422,6 +429,12 @@ local function match_precedence(track_ids, tracks, precedences, track_type)
                     table.insert(tracks_matching_precedence, id)
                 end
 
+            elseif precedence == "lang" then
+                precedence, track = handle_language_codes(precedence, tracks[id]["lang"])
+                if precedence == track then
+                    table.insert(tracks_matching_precedence, id)
+                end
+
             elseif precedence == "title" then
                 local track_title
                 if not tracks[id][precedence] then
@@ -452,6 +465,11 @@ local function match_precedence(track_ids, tracks, precedences, track_type)
                     current_highest_bitrate = track_bitrate
                     table.insert(tracks_matching_precedence, id)
                 end
+
+--             elseif precedence == "original" then
+--                 if tracks[id]["original"] then
+--                     table.insert(tracks_matching_precedence, id)
+--                 end
             end
         end
 
@@ -541,6 +559,7 @@ local function match_profiles(profiles)
     {
         "lang", "title", "default", "forced", "hearing-impaired", "visual-impaired", "external", "codec"
     }
+    -- "original", "commentary"
 
     for _, profile in ipairs(profiles) do
         log("\n" .. profile.description)
@@ -564,6 +583,8 @@ local function match_profiles(profiles)
             profile_matches = {profile.description, {audio_track_id, subtitle_track_id, secondary_subtitle_track_id}}
             table.insert(all_profile_matches, profile_matches)
         end
+
+        earliest_index = nil -- Reset per profile
 
         log("Audio: " .. utils.to_string(audio_matches))
         log("Subtitle: " .. utils.to_string(subtitle_matches))

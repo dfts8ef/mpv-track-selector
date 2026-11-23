@@ -613,9 +613,16 @@ local function get_profiles_matching_tracks(all_matches, profile)
 end
 
 local function set_tracks(audio_id, subtitle_id, secondary_subtitle_id)
-    mp.set_property("aid", audio_id)
-    mp.set_property("sid", subtitle_id)
-    mp.set_property("secondary-sid", secondary_subtitle_id)
+    local function resolve(id)
+        if not id or id == 0 then
+            return "no"
+        end
+        return id
+    end
+
+    mp.set_property("aid", resolve(audio_id))
+    mp.set_property("sid", resolve(subtitle_id))
+    mp.set_property("secondary-sid", resolve(secondary_subtitle_id))
 end
 
 mp.add_hook("on_preloaded", 50, function()

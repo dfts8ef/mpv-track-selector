@@ -415,6 +415,9 @@ local function match_precedence(track_ids, tracks, precedences, track_type)
     local track_id
 
     for _, precedence in ipairs(convert_option_to_table(precedences)) do
+        earliest_index = nil
+        earliest_matches = {}
+
         local tracks_matching_precedence = {}
         local current_highest_bitrate = 0
 
@@ -481,7 +484,6 @@ local function match_precedence(track_ids, tracks, precedences, track_type)
             break
         else
             log(precedence .. " precedence: " .. track_type .. " tracks filtered to " .. utils.to_string(tracks_matching_precedence))
-            earliest_index = nil
             clear_matching(track_ids)
             for i, id in pairs(tracks_matching_precedence) do
                 track_ids[i] = id
